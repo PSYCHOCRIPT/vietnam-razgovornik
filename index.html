@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Разговорник для Вьетнама</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700&display=swap">
+<style>
+/* Layout: one narrow column, search on top, phrase rows grouped by language and topic */
+:root{--bg:#f3f6f4;--card:#fff;--fg:#17221d;--muted:#5d6b64;--line:#dbe3de;--accent:#0f7a5c;--chip:#e4f1ec;
+--f:"Be Vietnam Pro",system-ui,-apple-system,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101614;--card:#18201d;--fg:#e6eee9;--muted:#93a39b;--line:#2a3530;--accent:#4fd1a5;--chip:#1d2d27;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101614;--card:#18201d;--fg:#e6eee9;--muted:#93a39b;--line:#2a3530;--accent:#4fd1a5;--chip:#1d2d27;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font:16px/1.5 var(--f);padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{max-width:640px;margin:0 auto;display:grid;gap:20px}
+h1{font-size:1.7rem;margin:0;text-wrap:balance}
+.sub{color:var(--muted);margin:4px 0 0;font-size:.9rem}
+input{width:100%;box-sizing:border-box;font:inherit;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--fg)}
+input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.tabs{display:flex;gap:8px}
+.tabs button{font:inherit;font-weight:600;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h2{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:8px 0 0}
+.note{font-size:.85rem;color:var(--muted);margin:0}
+ul{list-style:none;margin:0;padding:0;background:var(--card);border:1px solid var(--line);border-radius:12px}
+li{padding:12px 14px;border-top:1px solid var(--line);display:grid;gap:2px}
+li:first-child{border-top:0}
+.w{font-weight:700;font-size:1.1rem}
+.say{color:var(--accent);font-weight:600}
+.say small{color:var(--muted);font-weight:400}
+.m{color:var(--muted);font-size:.92rem}
+.empty{color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>Разговорник для Вьетнама</h1>
+<p class="sub">Словарь для общения с вьетнамцами и иностранцами. Вьетнамский с южным произношением (Сайгон) и английский, с подсказкой, как произносить, русскими буквами.</p>
+</header>
+<input id="q" type="search" placeholder="Найти слово или перевод" aria-label="Поиск">
+<div class="tabs" role="group" aria-label="Язык">
+<button id="t-vi" aria-pressed="true" data-l="vi">🇻🇳 Вьетнамский</button>
+<button id="t-en" aria-pressed="false" data-l="en">🇬🇧 Английский</button>
+</div>
+<p class="note" id="hint"></p>
+<div id="list"></div>
+</main>
+
+<script>
+// Phrase data: [word, how to say, meaning, topic]
+const D={
+vi:[
+["Xin chào","син тяо","Здравствуйте","Приветствие и знакомство","на chào голос вниз"],
+["Tôi tên là ...","той тен ла ...","Меня зовут ...","Приветствие и знакомство","на là голос вниз"],
+["Bạn khỏe không?","банг хуэ хом?","Как дела?","Приветствие и знакомство",""],
+["Tôi khỏe.","той хуэ","У меня всё хорошо","Приветствие и знакомство",""],
+["Cảm ơn","кам ынг","Спасибо","Приветствие и знакомство","на cảm голос вниз, потом вверх"],
+["Dạ","я","Да (вежливо)","Да и нет","низко, с лёгким подъёмом"],
+["Không","хом","Нет; не","Да и нет","в конце сомкни губы"],
+["tôi","той","я","Люди","ровно"],
+["bạn","банг","ты; друг","Люди","низко, с лёгким подъёмом"]
+],
+en:[
+["How are you?","ХАУ а ю?","Как дела?","Знакомство и вежливость",""],
+["I'm good, thanks. And you?","айм ГУД, СЭНКС. энд Ю?","Хорошо, спасибо. А ты?","Знакомство и вежливость",""],
+["Nice to meet you.","НАЙС ту МИТ ю","Приятно познакомиться","Знакомство и вежливость",""],
+["Excuse me","икс-КЬЮЗ ми","Простите (привлечь внимание)","Знакомство и вежливость",""],
+["Sorry","СО-ри","Извините (если ошибся)","Знакомство и вежливость",""],
+["I don't understand.","ай ДОУНТ андэр-СТЭНД","Я не понимаю","Если не понял",""],
+["Can you repeat, please?","кэн ю ри-ПИТ, ПЛИЗ?","Повторите, пожалуйста","Если не понял",""]
+]};
+const HINT={vi:"Ударений нет: все слоги ровной силы, смысл меняет тон. Подсказка серым - что делает голос.",en:"БОЛЬШИЕ буквы - ударный слог."};
+let lang="vi";
+try{const s=localStorage.getItem("lang");if(s&&D[s])lang=s}catch(e){}
+const esc=s=>s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+function render(){
+ const q=document.getElementById("q").value.trim().toLowerCase();
+ document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.l===lang));
+ document.getElementById("hint").textContent=HINT[lang];
+ const rows=D[lang].filter(r=>!q||(r[0]+" "+r[1]+" "+r[2]).toLowerCase().includes(q));
+ const groups={};rows.forEach(r=>(groups[r[3]]=groups[r[3]]||[]).push(r));
+ let h="";
+ for(const g in groups){h+="<h2>"+esc(g)+"</h2><ul>"+groups[g].map(r=>'<li><span class="w" lang="'+lang+'">'+esc(r[0])+'</span><span class="say">['+esc(r[1])+']'+(r[4]?' <small>'+esc(r[4])+'</small>':'')+'</span><span class="m">'+esc(r[2])+'</span></li>').join("")+"</ul>"}
+ document.getElementById("list").innerHTML=h||'<p class="empty">Ничего не нашлось. Попробуй другое слово.</p>';
+}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{lang=b.dataset.l;try{localStorage.setItem("lang",lang)}catch(e){}render()});
+document.getElementById("q").oninput=render;
+render();
+</script>
+</body>
+</html>
