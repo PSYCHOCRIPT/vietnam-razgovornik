@@ -4,90 +4,150 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Разговорник для Вьетнама</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0f7a5c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icon.svg">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700&display=swap">
 <style>
-/* Layout: one narrow column, search on top, phrase rows grouped by language and topic */
-:root{--bg:#f3f6f4;--card:#fff;--fg:#17221d;--muted:#5d6b64;--line:#dbe3de;--accent:#0f7a5c;--chip:#e4f1ec;
+:root{--bg:#f3f6f4;--card:#fff;--fg:#17221d;--muted:#5d6b64;--line:#dbe3de;--accent:#0f7a5c;--star:#d18b00;
 --f:"Be Vietnam Pro",system-ui,-apple-system,sans-serif}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101614;--card:#18201d;--fg:#e6eee9;--muted:#93a39b;--line:#2a3530;--accent:#4fd1a5;--chip:#1d2d27;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#101614;--card:#18201d;--fg:#e6eee9;--muted:#93a39b;--line:#2a3530;--accent:#4fd1a5;--chip:#1d2d27;color-scheme:dark}
-body{background:var(--bg);color:var(--fg);font:16px/1.5 var(--f);padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-main{max-width:640px;margin:0 auto;display:grid;gap:20px}
+@media (prefers-color-scheme:dark){:root{--bg:#101614;--card:#18201d;--fg:#e6eee9;--muted:#93a39b;--line:#2a3530;--accent:#4fd1a5;--star:#f0b24a;color-scheme:dark}}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 var(--f);padding:max(24px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 48px max(16px,env(safe-area-inset-left))}
+main{max-width:640px;margin:0 auto;display:grid;gap:16px}
 h1{font-size:1.7rem;margin:0;text-wrap:balance}
 .sub{color:var(--muted);margin:4px 0 0;font-size:.9rem}
 input{width:100%;box-sizing:border-box;font:inherit;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--fg)}
-input:focus{outline:2px solid var(--accent);outline-offset:1px}
-.tabs{display:flex;gap:8px}
-.tabs button{font:inherit;font-weight:600;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer}
-.tabs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
-.tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row button{font:inherit;font-weight:600;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer}
+.row button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+button:focus-visible,input:focus{outline:2px solid var(--accent);outline-offset:2px}
 h2{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:8px 0 0}
 .note{font-size:.85rem;color:var(--muted);margin:0}
 ul{list-style:none;margin:0;padding:0;background:var(--card);border:1px solid var(--line);border-radius:12px}
-li{padding:12px 14px;border-top:1px solid var(--line);display:grid;gap:2px}
+li{padding:12px 14px;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr auto;gap:2px 8px}
 li:first-child{border-top:0}
+li>div{min-width:0;display:grid;gap:2px}
 .w{font-weight:700;font-size:1.1rem}
 .say{color:var(--accent);font-weight:600}
 .say small{color:var(--muted);font-weight:400}
 .m{color:var(--muted);font-size:.92rem}
+.fav{background:none;border:0;font-size:1.4rem;color:var(--line);cursor:pointer;align-self:start;padding:0 4px}
+.fav.on{color:var(--star)}
 .empty{color:var(--muted)}
+#card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:28px 20px;text-align:center;display:grid;gap:10px;min-height:220px;align-content:center;cursor:pointer}
+#card .q{font-size:1.4rem;font-weight:700}
+#card .a{display:grid;gap:4px}
+#card .a .w{font-size:1.6rem}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btns button{font:inherit;font-weight:600;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer}
+.btns .ok{background:var(--accent);border-color:var(--accent);color:var(--bg)}
 </style>
 </head>
 <body>
 <main>
 <header>
 <h1>Разговорник для Вьетнама</h1>
-<p class="sub">Словарь для общения с вьетнамцами и иностранцами. Вьетнамский с южным произношением (Сайгон) и английский, с подсказкой, как произносить, русскими буквами.</p>
+<p class="sub">Словарь для общения с вьетнамцами и иностранцами. Вьетнамский с южным произношением (Сайгон) и английский, с подсказкой, как произносить, русскими буквами. Работает и без интернета.</p>
 </header>
-<input id="q" type="search" placeholder="Найти слово или перевод" aria-label="Поиск">
-<div class="tabs" role="group" aria-label="Язык">
-<button id="t-vi" aria-pressed="true" data-l="vi">🇻🇳 Вьетнамский</button>
-<button id="t-en" aria-pressed="false" data-l="en">🇬🇧 Английский</button>
+<div class="row" role="group" aria-label="Язык">
+<button data-l="vi">🇻🇳 Вьетнамский</button>
+<button data-l="en">🇬🇧 Английский</button>
 </div>
+<div class="row" role="group" aria-label="Режим">
+<button data-m="list">Все фразы</button>
+<button data-m="fav">★ Избранное</button>
+<button data-m="cards">Карточки</button>
+</div>
+<input id="q" type="search" placeholder="Найти слово или перевод" aria-label="Поиск">
 <p class="note" id="hint"></p>
-<div id="list"></div>
+<div id="out"></div>
 </main>
-
 <script>
-// Phrase data: [word, how to say, meaning, topic]
-const D={
-vi:[
-["Xin chào","син тяо","Здравствуйте","Приветствие и знакомство","на chào голос вниз"],
-["Tôi tên là ...","той тен ла ...","Меня зовут ...","Приветствие и знакомство","на là голос вниз"],
-["Bạn khỏe không?","банг хуэ хом?","Как дела?","Приветствие и знакомство",""],
-["Tôi khỏe.","той хуэ","У меня всё хорошо","Приветствие и знакомство",""],
-["Cảm ơn","кам ынг","Спасибо","Приветствие и знакомство","на cảm голос вниз, потом вверх"],
+// [фраза, как сказать, значение, тема, подсказка тона]
+const D={vi:[
+["Xin chào","син тяо","Здравствуйте","Приветствие","на chào голос вниз"],
+["Tôi tên là ...","той тен ла ...","Меня зовут ...","Приветствие","на là голос вниз"],
+["Bạn khỏe không?","банг хуэ хом?","Как дела?","Приветствие",""],
+["Tôi khỏe.","той хуэ","У меня всё хорошо","Приветствие",""],
+["Cảm ơn","кам ынг","Спасибо","Приветствие","на cảm голос вниз, потом вверх"],
+["Cảm ơn nha","кам ынг ня","Спасибо (мягко, по-южному)","Приветствие","nha смягчает фразу"],
 ["Dạ","я","Да (вежливо)","Да и нет","низко, с лёгким подъёмом"],
 ["Không","хом","Нет; не","Да и нет","в конце сомкни губы"],
-["tôi","той","я","Люди","ровно"],
-["bạn","банг","ты; друг","Люди","низко, с лёгким подъёмом"]
-],
-en:[
+["tôi","той","я","Обращения","ровно"],
+["bạn","банг","ты; друг","Обращения",""],
+["anh","ан","вы (к мужчине постарше)","Обращения","ровно"],
+["chị","чи","вы (к женщине постарше)","Обращения","низко"],
+["em","эм","ты (к младшему)","Обращения","ровно"],
+["Bao nhiêu tiền?","бао ньеу тиенг?","Сколько стоит?","Цены и торг","на tiền голос вниз"],
+["Mắc quá!","мак уа!","Слишком дорого! (юг)","Цены и торг","оба слога резко вверх"],
+["Bớt chút đi","быт чут ди","Уступите немного","Цены и торг",""],
+["một, hai, ba","мот, хай, ба","один, два, три","Числа",""],
+["bốn, năm, sáu","бон, нам, сау","четыре, пять, шесть","Числа",""],
+["bảy, tám, chín","бай, там, чин","семь, восемь, девять","Числа",""],
+["mười","мыой","десять","Числа","голос вниз"],
+["trăm","чам","сто","Числа","ровно"],
+["ngàn","нган","тысяча (юг; на севере nghìn)","Числа","голос вниз"],
+["Cho tôi ...","чо той ...","Дайте мне ...","Еда и кафе",""],
+["Không cay","хом кай","Не острое","Еда и кафе",""],
+["Cà phê sữa đá","ка фе сыа да","Кофе со сгущёнкой и льдом","Еда и кафе",""],
+["Nước","ныок","Вода","Еда и кафе","голос вверх"],
+["Ngon quá!","нгон уа!","Очень вкусно!","Еда и кафе",""],
+["Tính tiền","тын тиенг","Счёт, пожалуйста","Еда и кафе",""],
+["Quẹo trái","уэо чай","Налево (юг)","Такси и Grab",""],
+["Quẹo phải","уэо фай","Направо (юг)","Такси и Grab",""],
+["Đi thẳng","ди тханг","Прямо","Такси и Grab",""],
+["Dừng ở đây","йынг ы дэй","Остановитесь здесь","Такси и Grab",""],
+["Cứu tôi với!","кыу той йой!","Помогите!","Экстренное",""],
+["Bệnh viện","бен йиенг","Больница","Экстренное",""],
+["Nhà thuốc","ня тхуок","Аптека","Экстренное",""],
+["Công an","ком ан","Полиция","Экстренное",""]
+],en:[
 ["How are you?","ХАУ а ю?","Как дела?","Знакомство и вежливость",""],
 ["I'm good, thanks. And you?","айм ГУД, СЭНКС. энд Ю?","Хорошо, спасибо. А ты?","Знакомство и вежливость",""],
 ["Nice to meet you.","НАЙС ту МИТ ю","Приятно познакомиться","Знакомство и вежливость",""],
 ["Excuse me","икс-КЬЮЗ ми","Простите (привлечь внимание)","Знакомство и вежливость",""],
 ["Sorry","СО-ри","Извините (если ошибся)","Знакомство и вежливость",""],
 ["I don't understand.","ай ДОУНТ андэр-СТЭНД","Я не понимаю","Если не понял",""],
-["Can you repeat, please?","кэн ю ри-ПИТ, ПЛИЗ?","Повторите, пожалуйста","Если не понял",""]
+["Can you repeat, please?","кэн ю ри-ПИТ, ПЛИЗ?","Повторите, пожалуйста","Если не понял",""],
+["How much is it?","хау МАЧ из ит?","Сколько стоит?","Цены",""],
+["That's too expensive.","зэтс ТУ икс-ПЕН-сив","Слишком дорого","Цены",""],
+["Can I have the menu, please?","кэн ай хэв зэ МЕ-нью, плиз?","Можно меню?","Еда и кафе",""],
+["Not spicy, please.","нот СПАЙ-си, плиз","Не острое, пожалуйста","Еда и кафе",""],
+["The bill, please.","зэ БИЛ, плиз","Счёт, пожалуйста","Еда и кафе",""],
+["Where is ...?","УЭР из ...?","Где находится ...?","Дорога",""],
+["Turn left / Turn right","тёрн ЛЕФТ / тёрн РАЙТ","Поверните налево / направо","Дорога",""],
+["Stop here, please.","стоп ХИР, плиз","Остановитесь здесь","Дорога",""],
+["Help!","ХЕЛП!","Помогите!","Экстренное",""],
+["I need a doctor.","ай НИД э ДОК-тэр","Мне нужен врач","Экстренное",""],
+["Where is the pharmacy?","уэр из зэ ФАР-мэ-си?","Где аптека?","Экстренное",""]
 ]};
-const HINT={vi:"Ударений нет: все слоги ровной силы, смысл меняет тон. Подсказка серым - что делает голос.",en:"БОЛЬШИЕ буквы - ударный слог."};
-let lang="vi";
-try{const s=localStorage.getItem("lang");if(s&&D[s])lang=s}catch(e){}
-const esc=s=>s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
-function render(){
- const q=document.getElementById("q").value.trim().toLowerCase();
- document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.l===lang));
- document.getElementById("hint").textContent=HINT[lang];
- const rows=D[lang].filter(r=>!q||(r[0]+" "+r[1]+" "+r[2]).toLowerCase().includes(q));
- const groups={};rows.forEach(r=>(groups[r[3]]=groups[r[3]]||[]).push(r));
- let h="";
- for(const g in groups){h+="<h2>"+esc(g)+"</h2><ul>"+groups[g].map(r=>'<li><span class="w" lang="'+lang+'">'+esc(r[0])+'</span><span class="say">['+esc(r[1])+']'+(r[4]?' <small>'+esc(r[4])+'</small>':'')+'</span><span class="m">'+esc(r[2])+'</span></li>').join("")+"</ul>"}
- document.getElementById("list").innerHTML=h||'<p class="empty">Ничего не нашлось. Попробуй другое слово.</p>';
-}
-document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{lang=b.dataset.l;try{localStorage.setItem("lang",lang)}catch(e){}render()});
-document.getElementById("q").oninput=render;
+const HINT={vi:"Ударений нет: все слоги ровной силы, смысл меняет тон. Серым - что делает голос. Транскрипция примерная.",en:"БОЛЬШИЕ буквы - ударный слог."};
+const st={l:"vi",m:"list",fav:{}};
+function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+st.l=load("lang","vi");st.fav=load("fav",{});
+const $=s=>document.querySelector(s),esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const key=r=>st.l+":"+r[0];
+let deck=[],ci=0,shown=false;
+function rows(){const q=$("#q").value.trim().toLowerCase();return D[st.l].filter(r=>(st.m!=="fav"||st.fav[key(r)])&&(!q||(r[0]+" "+r[1]+" "+r[2]).toLowerCase().includes(q)))}
+function list(){const g={};rows().forEach(r=>(g[r[3]]=g[r[3]]||[]).push(r));let h="";
+ for(const t in g)h+="<h2>"+esc(t)+"</h2><ul>"+g[t].map(r=>'<li><div><span class="w" lang="'+st.l+'">'+esc(r[0])+'</span><span class="say">['+esc(r[1])+']'+(r[4]?' <small>'+esc(r[4])+'</small>':'')+'</span><span class="m">'+esc(r[2])+'</span></div><button class="fav'+(st.fav[key(r)]?' on':'')+'" data-k="'+esc(key(r))+'" aria-label="В избранное">★</button></li>').join("")+"</ul>";
+ $("#out").innerHTML=h||'<p class="empty">'+(st.m==="fav"?"Пока пусто. Нажми ★ у фразы, чтобы добавить её сюда.":"Ничего не нашлось.")+'</p>'}
+function newDeck(){const src=D[st.l].filter(r=>!Object.keys(st.fav).some(k=>k.startsWith(st.l+":"))||st.fav[key(r)]);deck=src.slice().sort(()=>Math.random()-.5);ci=0;shown=false}
+function card(){if(ci>=deck.length){$("#out").innerHTML='<div id="card"><div class="q">Колода пройдена 👍</div><div class="m">Нажми, чтобы начать заново</div></div>';$("#card").onclick=()=>{newDeck();card()};return}
+ const r=deck[ci];$("#out").innerHTML='<p class="note">Карточка '+(ci+1)+' из '+deck.length+'. Вспомни фразу и нажми на карточку. Если есть избранное, тренируются только его фразы.</p><div id="card"><div class="q">'+esc(r[2])+'</div>'+(shown?'<div class="a"><span class="w" lang="'+st.l+'">'+esc(r[0])+'</span><span class="say">['+esc(r[1])+']</span></div>':'<div class="m">Нажми, чтобы увидеть ответ</div>')+'</div>'+(shown?'<div class="btns"><button id="again">Ещё раз</button><button class="ok" id="know">Знаю</button></div>':'');
+ $("#card").onclick=()=>{shown=true;card()};
+ if(shown){$("#know").onclick=()=>{ci++;shown=false;card()};$("#again").onclick=()=>{deck.push(r);ci++;shown=false;card()}}}
+function render(){document.querySelectorAll("[data-l]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.l===st.l));
+ document.querySelectorAll("[data-m]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.m===st.m));
+ $("#hint").textContent=HINT[st.l];$("#q").hidden=st.m==="cards";st.m==="cards"?card():list()}
+document.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>{st.l=b.dataset.l;save("lang",st.l);newDeck();render()});
+document.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{st.m=b.dataset.m;if(st.m==="cards")newDeck();render()});
+$("#q").oninput=render;
+$("#out").addEventListener("click",e=>{const b=e.target.closest(".fav");if(!b)return;const k=b.dataset.k;st.fav[k]?delete st.fav[k]:st.fav[k]=1;save("fav",st.fav);render()});
 render();
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>
 </html>
